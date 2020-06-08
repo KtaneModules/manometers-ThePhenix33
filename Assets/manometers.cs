@@ -1,4 +1,4 @@
-﻿
+
 	using UnityEngine;
 	using System.Collections;
 	using System.Collections.Generic;
@@ -691,11 +691,9 @@
 		
 		}
 		Debug.LogFormat ("après " + comb);
-		if (comb >= 27) {
-			comb -= 27;
-		} else if (comb < 0) {
-			comb += 27;
-		}
+
+		comb = (comb + 27) % 27;
+
 			maxPT = pressureList [comb, 1];
 		maxPBL = pressureList [comb, 0];
 		maxPBR = pressureList [comb, 2];
