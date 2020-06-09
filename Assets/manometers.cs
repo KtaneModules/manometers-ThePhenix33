@@ -986,7 +986,7 @@
 		}
 	}
 
-	public string TwitchHelpMessage = "Submit the target pressure with ''!{0} submit 20''. Set the manometers pressure (TOP = t, BOTTOM LEFT = bl, BOTTOM RIGHT = br) with ''!{0} t 2'' or join them with ''!{0} t 2 bl 3 br 5''. Turn the valve with ''!{0} valve''.";
+	public string TwitchHelpMessage = "Submit the target pressure with \"!{0} submit 20\". Set the manometers pressure (TOP = t, BOTTOM LEFT = bl, BOTTOM RIGHT = br) with \"!{0} t 2\" or join them with \"!{0} t 2 bl 3 br 5\". Turn the valve with \"!{0} valve\".";
 	KMSelectable[] ProcessTwitchCommand (string command)
 	{
 		command = command.ToLowerInvariant ().Trim ();
@@ -1018,7 +1018,9 @@
 
 		if (Regex.IsMatch (command, @"^valve")) {
 			return new[] {abort};
-		}
+            if (presT == maxPT && presBL == maxPBL && presBR == maxPBR)
+                yield return "solve";
+        }
 
 		List<KMSelectable> action = new List<KMSelectable>();
 		command += "  ";
@@ -1139,4 +1141,53 @@
 		return null;
 	}
 	
+    IEnumerator TwitchHandleForcedSolve()
+    {
+        if (!submit)
+        {
+            if (pressure < gP)
+            {
+                int start = pressure;
+                for (int i = start; i < gP; i++)
+                {
+                    sP.OnInteract();
+                    yield return new WaitForSeconds(0.1f);
+                }
+            }
+            else if (pressure > gP)
+            {
+                int start = pressure;
+                for (int i = start; i > gP; i--)
+                {
+                    sM.OnInteract();
+                    yield return new WaitForSeconds(0.1f);
+                }
+            }
+            screen.OnInteract();
+            yield return new WaitForSeconds(0.1f);
+        }
+        int start = presT;
+        for (int i = start; i < maxPT; i++)
+        {
+            Tp.OnInteract();
+            yield return new WaitForSeconds(0.1f);
+        }
+        start = presBL;
+        for (int i = start; i < maxPBL; i++)
+        {
+            BLp.OnInteract();
+            yield return new WaitForSeconds(0.1f);
+        }
+        start = presBR;
+        for (int i = start; i < maxPBR; i++)
+        {
+            BRp.OnInteract();
+            yield return new WaitForSeconds(0.1f);
+        }
+        if (_valve)
+        {
+            abort.OnInteract();
+            while (!_isSolved) { yield return true; yield return new WaitForSeconds(0.1f); }
+        }
+    }
 }
