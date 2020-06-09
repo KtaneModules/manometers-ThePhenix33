@@ -1018,8 +1018,8 @@
 
 		if (Regex.IsMatch (command, @"^valve")) {
 			return new[] {abort};
-            if (presT == maxPT && presBL == maxPBL && presBR == maxPBR)
-                yield return "solve";
+            if (presT == maxPT && presBL == maxPBL && presBR == maxPBR) 
+                yield return "solve";  //this line causes  an error 
         }
 
 		List<KMSelectable> action = new List<KMSelectable>();
