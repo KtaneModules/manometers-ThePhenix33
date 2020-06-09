@@ -987,7 +987,7 @@
 	}
 
 	public string TwitchHelpMessage = "Submit the target pressure with \"!{0} submit 20\". Set the manometers pressure (TOP = t, BOTTOM LEFT = bl, BOTTOM RIGHT = br) with \"!{0} t 2\" or join them with \"!{0} t 2 bl 3 br 5\". Turn the valve with \"!{0} valve\".";
-	KMSelectable[] ProcessTwitchCommand (string command)
+	IEnumerator ProcessTwitchCommand (string command)
 	{
 		command = command.ToLowerInvariant ().Trim ();
 
@@ -1004,22 +1004,31 @@
 						plusS.Add (sP);
 					}
 					plusS.Add(screen);
-					return plusS.ToArray();
+					foreach (KMSelectable sel in plusS)
+                    {
+                        sel.OnInteract();
+                        yield return new WaitForSeconds(0.1f);
+                    }
+                    //return plusS.ToArray();
 				} else {
-					return null;
+                    yield break;
+                    //return null;
 				}
 			}
 		} else if(!Regex.IsMatch (command, @"^submit \d\d") && !submit){
-				return null;
+            yield break;
+            //return null;
 			}
 		
 		
 
 
 		if (Regex.IsMatch (command, @"^valve")) {
-			return new[] {abort};
+            yield return null;
+            abort.OnInteract();
+			//return new[] {abort};
             if (presT == maxPT && presBL == maxPBL && presBR == maxPBR) 
-                yield return "solve";  //this line causes  an error 
+                yield return "solve";
         }
 
 		List<KMSelectable> action = new List<KMSelectable>();
@@ -1039,7 +1048,8 @@
 
 				//	KMSelectable[] plusT = { sP, sP, sP, sP, sP, sP, sP, sP, sP, sP };
 				if(Regex.IsMatch(commandT.Trim(), @"\D?\D")){
-					return null;
+                    yield break;
+                    //return null;
 				}
 				for (int i = 0; i < int.Parse (commandT); i++) {
 					action.Add (Tp);
@@ -1066,7 +1076,8 @@
 				//KMSelectable[] plusBL = { sP, sP, sP, sP, sP, sP, sP, sP, sP, sP };
 				//Debug.LogFormat ("AVANT");
 				if(Regex.IsMatch(commandBL.Trim(), @"\D?\D")){
-					return null;
+                    yield break;
+					//return null;
 				}
 				for (int i = 0; i < int.Parse (commandBL); i++) {
 					action.Add (BLp);
@@ -1090,15 +1101,22 @@
 
 				//KMSelectable[] plusBR = { sP, sP, sP, sP, sP, sP, sP, sP, sP, sP };
 				if(Regex.IsMatch(commandBR.Trim(), @"\D?\D")){
-					return null;
+                    yield break;
+                    //return null;
 				}
 				for (int i = 0; i < int.Parse (commandBR); i++) {
 					action.Add (BRp);
 				}
 			}
 
-			return action.ToArray ();
-		}
+            yield return null;
+            //return action.ToArray ();
+            foreach (KMSelectable sel in action)
+            {
+                sel.OnInteract();
+                yield return new WaitForSeconds(0.1f);
+            }
+        }
 		/*if (Regex.IsMatch (command, @"^t +\d\d?")) {
 			
 			presT = 0;
